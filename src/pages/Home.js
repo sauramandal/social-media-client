@@ -1,17 +1,33 @@
-import React, { Fragment } from "react";
-import PropTypes from "prop-types";
+import React, { Fragment } from 'react'
+import { useQuery, gql } from '@apollo/client'
 
-const Home = ({ data }) => {
-  return (
-    <Fragment>
-      Home
-    </Fragment>
-  );
-};
-Home.propTypes = {
-  data: PropTypes.array.isRequired,
-};
-Home.defaultProps = {
-  data: [],
-};
-export default Home;
+const FETCH_POSTS_QUERY = gql`
+    {
+        getPosts {
+            id
+            body
+            createdAt
+            username
+            likeCount
+            likes {
+                username
+            }
+            commentCount
+            comments {
+                id
+                username
+                createdAt
+                body
+            }
+        }
+    }
+`
+const Home = () => {
+    const { loading, data } = useQuery(FETCH_POSTS_QUERY)
+    if (data) {
+        console.log(data)
+    }
+    return <Fragment>Home</Fragment>
+}
+
+export default Home
