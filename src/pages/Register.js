@@ -2,14 +2,15 @@ import React, { Fragment, useState } from 'react'
 import { Button, Form } from 'semantic-ui-react'
 import { gql, useMutation } from '@apollo/client'
 
+const defaultFormData = {
+    username: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+}
 const Register = () => {
-    const [formData, setFormData] = useState({
-        username: '',
-        email: '',
-        password: '',
-        confirmPassword: '',
-    })
-
+    const [formData, setFormData] = useState(defaultFormData)
+    const [errors, setErrors] = useState({})
     const onChange = ({ target: { name, value } }) => {
         setFormData({ ...formData, [name]: value })
     }
@@ -28,11 +29,16 @@ const Register = () => {
         update(proxy, result) {
             console.log(result)
         },
+        onError(err) {
+            console.log('errors'); console.log(err.graphQLErrors[0].extensions.errors)
+            setErrors(err.graphQLErrors[0].extensions.errors)
+        },
         variables: formData,
     })
     const onSubmit = (event) => {
         event.preventDefault()
         addUser()
+        setFormData(defaultFormData)
     }
 
     return (
@@ -54,6 +60,15 @@ const Register = () => {
                     Register
                 </Button>
             </Form>
+            {Object.keys(errors).length > 0 && (
+                <div className="ui error message">
+                    <ul className="list">
+                        {Object.values(errors).map((err) => (
+                            <li key={err}>{err}</li>
+                        ))}
+                    </ul>
+                </div>
+            )}
         </div>
     )
 }
