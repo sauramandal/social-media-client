@@ -4,8 +4,6 @@ import {
   ApolloClient,
   InMemoryCache,
   ApolloProvider,
-  useQuery,
-  gql,
 } from "@apollo/client";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
