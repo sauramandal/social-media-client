@@ -8,7 +8,7 @@ const defaultFormData = {
     password: '',
     confirmPassword: '',
 }
-const Register = () => {
+const Register = (props) => {
     const [formData, setFormData] = useState(defaultFormData)
     const [errors, setErrors] = useState({})
     const onChange = ({ target: { name, value } }) => {
@@ -26,11 +26,13 @@ const Register = () => {
         }
     `
     const [addUser, { loading }] = useMutation(REGISTER_USER, {
-        update(proxy, result) {
-            console.log(result)
+        update(_, result) {
+            // console.log(result)
+            props.history.push('/')
         },
         onError(err) {
-            console.log('errors'); console.log(err.graphQLErrors[0].extensions.errors)
+            // console.log('errors')
+            // console.log(err.graphQLErrors[0].extensions.errors)
             setErrors(err.graphQLErrors[0].extensions.errors)
         },
         variables: formData,
@@ -45,15 +47,31 @@ const Register = () => {
         <div className="form-container">
             <Form onSubmit={onSubmit} noValidate className={loading ? 'loading' : ''}>
                 <h1>Register</h1>
-                <Form.Input label="Username" placeholder="Username.." name="username" value={formData.username} onChange={onChange} />
-                <Form.Input label="Email" placeholder="Email.." name="email" value={formData.email} onChange={onChange} />
-                <Form.Input type="password" label="Password" placeholder="Password.." name="password" value={formData.password} onChange={onChange} />
+                <Form.Input
+                    label="Username"
+                    placeholder="Username.."
+                    name="username"
+                    value={formData.username}
+                    error={errors.username ? true : false}
+                    onChange={onChange}
+                />
+                <Form.Input label="Email" placeholder="Email.." name="email" value={formData.email} error={errors.email ? true : false} onChange={onChange} />
+                <Form.Input
+                    type="password"
+                    label="Password"
+                    placeholder="Password.."
+                    name="password"
+                    value={formData.password}
+                    error={errors.password ? true : false}
+                    onChange={onChange}
+                />
                 <Form.Input
                     type="password"
                     label="Confirm Password"
                     placeholder="Confirm Password.."
                     name="confirmPassword"
                     value={formData.confirmPassword}
+                    error={errors.confirmPassword ? true : false}
                     onChange={onChange}
                 />
                 <Button type="submit" primary>
