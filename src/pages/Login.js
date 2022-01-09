@@ -1,8 +1,9 @@
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button, Form } from 'semantic-ui-react'
 import { gql, useMutation } from '@apollo/client'
 import { useForm } from '../utils/hooks/useForm'
+import { AuthContext } from '../context/auth'
 
 const defaultFormData = {
     username: '',
@@ -21,17 +22,17 @@ const LOGIN_USER = gql`
     }
 `
 const Login = () => {
+    const context = useContext(AuthContext)
     const navigate = useNavigate()
     const { formData, onChange, onSubmit } = useForm(defaultFormData, loginUserCallback)
     const [errors, setErrors] = useState({})
 
     const [loginUser, { loading }] = useMutation(LOGIN_USER, {
-        update(_, result) {
-            // console.log(result)
+        update(_, { data: { login: userData } }) {
+            context.login(userData)
             navigate('/')
         },
         onError(err) {
-            // console.log('errors', err)
             if (err) {
                 setErrors(err?.graphQLErrors[0]?.extensions?.errors)
             }
