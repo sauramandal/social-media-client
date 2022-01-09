@@ -1,6 +1,8 @@
-import React, { Fragment, useState } from 'react'
+import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Button, Form } from 'semantic-ui-react'
 import { gql, useMutation } from '@apollo/client'
+import { useForm } from '../utils/hooks/useForm'
 
 const defaultFormData = {
     username: '',
@@ -8,39 +10,38 @@ const defaultFormData = {
     password: '',
     confirmPassword: '',
 }
-const Register = (props) => {
-    const [formData, setFormData] = useState(defaultFormData)
-    const [errors, setErrors] = useState({})
-    const onChange = ({ target: { name, value } }) => {
-        setFormData({ ...formData, [name]: value })
-    }
-    const REGISTER_USER = gql`
-        mutation register($username: String!, $email: String!, $password: String!, $confirmPassword: String!) {
-            register(registerInput: { username: $username, email: $email, password: $password, confirmPassword: $confirmPassword }) {
-                id
-                email
-                username
-                createdAt
-                token
-            }
+const REGISTER_USER = gql`
+    mutation register($username: String!, $email: String!, $password: String!, $confirmPassword: String!) {
+        register(registerInput: { username: $username, email: $email, password: $password, confirmPassword: $confirmPassword }) {
+            id
+            email
+            username
+            createdAt
+            token
         }
-    `
+    }
+`
+const Register = () => {
+    const navigate = useNavigate()
+    const { formData, onChange, onSubmit } = useForm(defaultFormData, registerUser)
+    const [errors, setErrors] = useState({})
+
     const [addUser, { loading }] = useMutation(REGISTER_USER, {
         update(_, result) {
             // console.log(result)
-            props.history.push('/')
+            navigate('/')
         },
         onError(err) {
-            // console.log('errors')
-            // console.log(err.graphQLErrors[0].extensions.errors)
-            setErrors(err.graphQLErrors[0].extensions.errors)
+            // console.log('errors', err)
+            if (err) {
+                setErrors(err?.graphQLErrors[0]?.extensions?.errors)
+            }
         },
         variables: formData,
     })
-    const onSubmit = (event) => {
-        event.preventDefault()
+
+    function registerUser() {
         addUser()
-        setFormData(defaultFormData)
     }
 
     return (
