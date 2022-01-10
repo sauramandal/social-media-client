@@ -5,6 +5,7 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import MenuBar from './components/MenuBar'
 import { AuthProvider } from './context/auth'
+import AuthRoute from './utils/auth/AuthRoute'
 import './App.css'
 
 function App() {
@@ -15,8 +16,8 @@ function App() {
                     <MenuBar />
                     <Routes>
                         <Route exact path="/" element={<Home />} />
-                        <Route exact path="/login" element={<Login />} />
-                        <Route exact path="/register" element={<Register />} />
+                        <AuthRoute exact path="/login" element={<Login />} />
+                        <AuthRoute exact path="/register" element={<Register />} />
                     </Routes>
                 </Container>
             </Router>
