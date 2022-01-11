@@ -1,5 +1,4 @@
 import gql from 'graphql-tag'
-import { useContext } from 'react'
 import { Form, Button } from 'semantic-ui-react'
 import { useMutation } from '@apollo/client'
 import { useForm } from '../utils/hooks/useForm'
