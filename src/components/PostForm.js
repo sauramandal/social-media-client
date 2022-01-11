@@ -1,6 +1,6 @@
 import gql from 'graphql-tag'
 import { useContext } from 'react'
-import { Form } from 'semantic-ui-react'
+import { Form, Button } from 'semantic-ui-react'
 import { useMutation } from '@apollo/client'
 import { useForm } from '../utils/hooks/useForm'
 
@@ -46,7 +46,10 @@ const PostForm = () => {
         <Form onSubmit={onSubmit}>
             <h2>Create a Post</h2>
             <Form.Field>
-                <Form.Input placeholder="" name="body" onChange={onChange} value={formData} />
+                <Form.Input placeholder="" name="body" onChange={onChange} value={formData.body} />
+                <Button type="submit" color="teal">
+                    Submit
+                </Button>
             </Form.Field>
         </Form>
     )
