@@ -3,6 +3,7 @@ import { Form, Button } from 'semantic-ui-react'
 import { useMutation } from '@apollo/client'
 import { useForm } from '../utils/hooks/useForm'
 import { FETCH_POSTS_QUERY } from '../utils/graphql/postQueries'
+import { Fragment } from 'react/cjs/react.production.min'
 
 const CREATE_POST_MUTATION = gql`
     mutation createPost($body: String!) {
@@ -52,15 +53,24 @@ const PostForm = () => {
     }
 
     return (
-        <Form onSubmit={onSubmit}>
-            <h2>Create a Post</h2>
-            <Form.Field>
-                <Form.Input placeholder="" name="body" onChange={onChange} value={formData.body} />
-                <Button type="submit" color="teal">
-                    Submit
-                </Button>
-            </Form.Field>
-        </Form>
+        <Fragment>
+            <Form onSubmit={onSubmit}>
+                <h2>Create a Post</h2>
+                <Form.Field>
+                    <Form.Input placeholder="" name="body" onChange={onChange} value={formData.body} error={error ? true : false} />
+                    <Button type="submit" color="teal">
+                        Submit
+                    </Button>
+                </Form.Field>
+            </Form>
+            {error && (
+                <div className="ui error message" style={{ marginBottom: 20 }}>
+                    <ul className="list">
+                        <li>{error.graphQLErrors[0].message}</li>
+                    </ul>
+                </div>
+            )}
+        </Fragment>
     )
 }
 
