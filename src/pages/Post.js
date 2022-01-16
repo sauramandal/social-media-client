@@ -1,11 +1,12 @@
-import { useState, useContext } from 'react'
-import { useParams } from 'react-router-dom'
+import { useState, useContext, useRef } from 'react'
+import { useParams, useHistory } from 'react-router-dom'
 import gql from 'graphql-tag'
-import { useQuery } from '@apollo/client'
+import { useQuery, useMutation } from '@apollo/client'
 import moment from 'moment'
 import { Button, Card, Form, Grid, Image, Icon, Label } from 'semantic-ui-react'
 import { AuthContext } from '../context/auth'
 import LikeButton from '../components/LikeButton'
+import DeleteButton from '../components/DeleteButton'
 import MyPopup from '../utils/MyPopup'
 
 const FETCH_POST_QUERY = gql`
@@ -29,18 +30,48 @@ const FETCH_POST_QUERY = gql`
         }
     }
 `
+
+const SUBMIT_COMMENT_MUTATION = gql`
+    mutation ($postId: String!, $body: String!) {
+        createComment(postId: $postId, body: $body) {
+            id
+            comments {
+                id
+                body
+                createdAt
+                username
+            }
+            commentCount
+        }
+    }
+`
+
 const Post = () => {
     const params = useParams()
+    const history = useHistory()
     const postId = params.postId
     const { user } = useContext(AuthContext)
+    const commentInputRef = useRef(null)
     const [comment, setComment] = useState('')
-    const {
-        data: { getPost },
-    } = useQuery(FETCH_POST_QUERY, {
+    const { data: { getPost } = {} } = useQuery(FETCH_POST_QUERY, {
         variables: {
             postId,
         },
     })
+    const [submitComment] = useMutation(SUBMIT_COMMENT_MUTATION, {
+        update() {
+            setComment('')
+            commentInputRef.current.blur()
+        },
+        variables: {
+            postId,
+            body: comment,
+        },
+    })
+
+    function deletePostCallback() {
+        history.push('/')
+    }
     let postMarkup
     if (!getPost) {
         postMarkup = <p>Loading post..</p>
@@ -72,7 +103,7 @@ const Post = () => {
                                         </Label>
                                     </Button>
                                 </MyPopup>
-                                {/* {user && user.username === username && <DeleteButton postId={id} callback={deletePostCallback} />} */}
+                                {user && user.username === username && <DeleteButton postId={id} callback={deletePostCallback} />}
                             </Card.Content>
                         </Card>
                         {user && (
@@ -87,9 +118,9 @@ const Post = () => {
                                                 name="comment"
                                                 value={comment}
                                                 onChange={(event) => setComment(event.target.value)}
-                                                // ref={commentInputRef}
+                                                ref={commentInputRef}
                                             />
-                                            <button type="submit" className="ui button teal" disabled={comment.trim() === ''} onClick={() => {}}>
+                                            <button type="submit" className="ui button teal" disabled={comment.trim() === ''} onClick={submitComment}>
                                                 Submit
                                             </button>
                                         </div>
@@ -100,7 +131,7 @@ const Post = () => {
                         {comments.map((comment) => (
                             <Card fluid key={comment.id}>
                                 <Card.Content>
-                                    {/* {user && user.username === comment.username && <DeleteButton postId={id} commentId={comment.id} />} */}
+                                    {user && user.username === comment.username && <DeleteButton postId={id} commentId={comment.id} />}
                                     <Card.Header>{comment.username}</Card.Header>
                                     <Card.Meta>{moment(comment.createdAt).fromNow()}</Card.Meta>
                                     <Card.Description>{comment.body}</Card.Description>
